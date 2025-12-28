@@ -8,19 +8,21 @@
         * {
             margin: 0;
             padding: 0;
-            overflow: hidden;
         }
-        body {
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
             background: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
         }
         video {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100vw;
             height: 100vh;
             object-fit: cover;
+            z-index: 9999;
         }
     </style>
 </head>
@@ -29,22 +31,44 @@
         <source src="video.mp4" type="video/mp4">
     </video>
     <script>
-        // Auto pantalla completa al cargar
-        window.onload = function() {
-            const video = document.getElementById('vid');
-            video.play();
-            
-            // Intenta pantalla completa automáticamente
+        const video = document.getElementById('vid');
+        
+        // Forzar reproducción
+        video.play().catch(e => console.log(e));
+        
+        // Pantalla completa REAL al cargar
+        window.addEventListener('load', () => {
             setTimeout(() => {
-                if (video.requestFullscreen) {
-                    video.requestFullscreen();
-                } else if (video.webkitRequestFullscreen) {
-                    video.webkitRequestFullscreen();
-                } else if (video.msRequestFullscreen) {
-                    video.msRequestFullscreen();
+                // Intenta pantalla completa del navegador
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                    document.documentElement.webkitRequestFullscreen();
                 }
-            }, 500);
-        };
+            }, 1000);
+        });
+        
+        // También al hacer clic
+        document.addEventListener('click', () => {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                    document.documentElement.webkitRequestFullscreen();
+                }
+            }
+        });
+
+        // Prevenir que se salga de pantalla completa con ESC
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                setTimeout(() => {
+                    if (document.documentElement.requestFullscreen) {
+                        document.documentElement.requestFullscreen();
+                    }
+                }, 500);
+            }
+        });
     </script>
 </body>
 </html>
